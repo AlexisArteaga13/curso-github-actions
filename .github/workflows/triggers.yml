@@ -1,0 +1,53 @@
+name: Triggers
+run-name: ¡Estoy aprendiendo a usar triggers en GitHub Actions!
+on:
+  push:
+    branches:
+        - master
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - '**.js'
+  issues:
+    types:
+        - labeled
+  workflow_dispatch:
+        inputs:
+            lenguaje_favorite:
+                description: '¿Cuál es tu lenguaje de programación favorito?'
+                required: true
+                default: 'JavaScript'
+                type: choice
+                options:
+                    - JavaScript
+                    - Python
+                    - Java
+                    - C#
+                    - C++
+            nombre:
+                    description: '¿Cuál es tu nombre?'
+                    required: true
+                    default: 'Desconocido'
+                    type: string
+  schedule:
+            - cron: '50 9 * * *'
+jobs:
+    hola-mundo-manual:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+            - name: Definir nombre
+              run: echo "NOMBRE=${{ inputs.nombre }}" >> $GITHUB_ENV
+            - name: Definir lenguaje favorito
+              run: echo "LENGUAJE_FAVORITO=${{ inputs.lenguaje_favorite }}" >> $GITHUB_ENV
+            - name: Correr script
+              run: node index.js
+    hola-mundo-push:
+        if: ${{ github.event_name != 'workflow_dispatch' }}
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+            - name: Correr script
+              run: node index.js
